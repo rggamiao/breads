@@ -1,4 +1,4 @@
-// dependencies
+// Dependencies
 const express = require('express')
 const baker = express.Router()
 const Baker = require('../models/baker.js')
@@ -9,36 +9,21 @@ baker.get('/data/seed', (req, res) => {
         .then(res.redirect('/breads'))
 })
 
-// Index: 
+// Baker Index Route
 baker.get('/', (req, res) => {
     Baker.find()
         .populate('breads')
         .then(foundBakers => {
             res.send(foundBakers)
         })
-})         
+})
 
-// SEEDS
-baker.get('/data/seed', (req, res) => {
-    Baker.insertMany(bakerSeedData)
-        .then(() => {
-                res.redirect('/breads')
-        })
-        .catch((err) => {
-                res.status(400).json({
-                        message: 'Seed unsuccessful',
-                        error: err
-                })
-        })
-        })
-
-
-// show 
+// Show Route
 baker.get('/:id', (req, res) => {
     Baker.findById(req.params.id)
         .populate({
             path: 'breads',
-            options: { limit: 2 }
+            options: { limit: 5 }
         })
         .then(foundBaker => {
             res.render('bakerShow', {
@@ -47,8 +32,7 @@ baker.get('/:id', (req, res) => {
         })
 })
 
-
-// delete
+// Baker Delete Route
 baker.delete('/:id', (req, res) => {
     Baker.findByIdAndDelete(req.params.id) 
       .then(deletedBaker => { 
@@ -56,6 +40,5 @@ baker.delete('/:id', (req, res) => {
       })
 })
 
-
-// export
+// Export
 module.exports = baker                    

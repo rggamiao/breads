@@ -1,12 +1,14 @@
-const express = require('express');
-const breads = express.Router();
-const Bread = require('../models/bread.js');
+// Dependencies
+const express = require('express')
+const breads = express.Router()
+const Bread = require('../models/bread.js')
+const { title } = require('process')
 const Baker = require('../models/baker.js')
 
-// Index:
+// Index Route - Using Async
 breads.get('/', async (req, res) => {
-  const foundBakers = await Baker.find().lean() 
-  const foundBreads = await Bread.find().limit(2).lean() 
+  const foundBakers = await Baker.find().lean()
+  const foundBreads = await Bread.find().limit(10).lean()
   res.render('index', {
     breads: foundBreads,
     bakers: foundBakers,
@@ -14,37 +16,46 @@ breads.get('/', async (req, res) => {
   })
 })
 
-
-
-// NEW
+// New Route
 breads.get('/new', (req, res) => {
-    Baker.find()
-        .then(foundBakers => {
-            res.render('new', {
-                bakers: foundBakers
-            })
-      })
+  Baker.find()
+      .then(foundBakers => {
+          res.render('new', {
+              bakers: foundBakers
+          })
+    })
 })
 
-// SHOW
-breads.get('/:id', (req, res) => {
+// Show Route
+// breads.get('/:id', (req, res) => {
+//   Bread.findById(req.params.id)
+//       .then(foundBread => {
+//         const bakedBy = foundBread.getBakedBy() 
+//         console.log(bakedBy)
+//         res.render('show', {
+//             bread: foundBread
+//         })
+//       })
+//     })
+
+    // SHOW
+breads.get('/:id', (req, res,) => {
   Bread.findById(req.params.id)
       .populate('baker')
       .then(foundBread => {
-        const bakedBy = foundBread.getBakedBy() 
-        console.log(bakedBy)
         res.render('show', {
             bread: foundBread
         })
       })
-    })
+      .catch(err => {
+        res.send('404')
+      })
+})
 
-
-
-// CREATE
+// Create
 breads.post('/', (req, res) => {
-  if (!req.body.image) {
-    req.body.image = undefined
+  if(!req.body.image) {
+      req.body.image = undefined 
   }
   if(req.body.hasGluten === 'on') {
     req.body.hasGluten = true
@@ -55,7 +66,7 @@ breads.post('/', (req, res) => {
   res.redirect('/breads')
 })
 
-//UPDATE
+// Put/Update Route
 breads.put('/:id', (req, res) => {
   if(req.body.hasGluten === 'on'){
     req.body.hasGluten = true
@@ -64,18 +75,18 @@ breads.put('/:id', (req, res) => {
   }
   Bread.findByIdAndUpdate(req.params.id, req.body, { new: true }) 
     .then(updatedBread => {
-      console.log(updatedBread) 
+      console.log('we made it here', updatedBread) 
       res.redirect(`/breads/${req.params.id}`) 
     })
 })
 
-// EDIT
+// Edit Route
 breads.get('/:id/edit', (req, res) => {
   Baker.find()
     .then(foundBakers => {
         Bread.findById(req.params.id)
           .then(foundBread => {
-            res.render('layouts/edit', {
+            res.render('edit', {
                 bread: foundBread, 
                 bakers: foundBakers 
             })
@@ -83,9 +94,7 @@ breads.get('/:id/edit', (req, res) => {
     })
 })
 
-
-
-// DELETE
+// Delete Route
 breads.delete('/:id', (req, res) => {
   Bread.findByIdAndDelete(req.params.id) 
     .then(deletedBread => { 
@@ -93,6 +102,7 @@ breads.delete('/:id', (req, res) => {
     })
 })
 
+module.exports = breads
 
 
-module.exports = breads;
+

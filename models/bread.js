@@ -1,32 +1,28 @@
-// require mongoose 
+// Require Mongoose
 const mongoose = require('mongoose')
-
-// creating shorthand for the Schema constructor 
+// Shorthand for the constructor
 const { Schema } = mongoose 
 
-// schema
+// Schema
+
 const breadSchema = new Schema({
-  name: { type: String, required: true },
-  hasGluten: Boolean,
-  image: { type: String, default: 'http://placehold.it/500x500.png' },
-  baker: {
-    type: Schema.Types.ObjectID,
-    ref: 'Baker'
-  }
+    name: { type: String, required: true },
+    hasGluten: Boolean,
+    image: { type: String, default: 'http://placehold.it/500x500.png' },
+    baker: {
+      type: Schema.Types.ObjectID,
+      ref: 'baker'
+    }
 })
 
-
-
-// helper methods 
+// Instance Helper Method
 breadSchema.methods.getBakedBy = function(){
-  return `${this.name} was baked with love by ${this.baker.name}, who has been with us since ${this.baker.startDate.getFullYear()}`
-}
+    return `${this.name} was baked with love by ${this.baker.name}, who has been with us since ${this.baker.startDate.getFullYear()}`
+  }
 
-
-
-
-//model instance
+// Model & Exporting Bread
 const Bread = mongoose.model('Bread', breadSchema)
-
-//export
 module.exports = Bread
+
+  
+  
